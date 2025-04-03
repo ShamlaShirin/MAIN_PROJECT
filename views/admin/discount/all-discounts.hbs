@@ -29,10 +29,11 @@
                                         <th>No.</th>
                                         <th>Date</th>
                                         <th>Title</th>
-                                        <th>Sub Title</th>
+                                        <th>Category</th>
                                         <th>Code</th>
                                         <th>Images</th>
-                                        <th>Desc</th>
+                                        <th>Description</th>
+                                        <th>visibility</th>
                                         <th>Manage</th>
                                     </tr>
                                 </thead>
@@ -53,6 +54,7 @@
                                             {{this.code}}
                                         </td>
                                         <td>
+                                            
                                             <a href="/images/discounts-images/{{this._id}}.png">
                                                 <img src="/images/discounts-images/{{this._id}}.png" alt=""
                                                     style="width: 2rem">
@@ -64,13 +66,17 @@
                                             {{this.desc}}
 
                                         </td>
+                                        <td>
+                                            {{this.offerVisibility}}
+
+                                        </td>
 
 
                                         <td>
                                             <div class="d-flex gap-2">
 
-                                                {{!-- <a href="/admin/category/edit-category/{{this._id}}"
-                                                    class="btn btn-dark btn-sm"><i class="bi bi-pen"></i></a> --}}
+                                                <a href="/admin/discount/edit-discount/{{this._id}}"
+                                                    class="btn btn-dark btn-sm"><i class="bi bi-pen"></i></a>
 
                                                 <form action="/admin/discount/delete-discount/{{this._id}}"
                                                     method="POST">

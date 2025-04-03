@@ -7,6 +7,12 @@
     .form-group {
         margin-bottom: 10px;
     }
+    .form-control[type="number"]::-webkit-inner-spin-button,
+.form-control[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
 </style>
 
 <style>
@@ -61,7 +67,7 @@
                     </div>
                     <div class="col-md-6">
     <label for="inputPhone" class="form-label">Phone Number</label>
-    <input type="text" name="phone" class="form-control" id="inputPhone" value="{{phone}}" required maxlength="10">
+    <input type="text" name="Phone" class="form-control" id="inputPhone" value="{{Phone}}" required maxlength="10">
     <div id="phoneError" class="text-danger"></div> <!-- Error will be shown here -->
 </div>
 
@@ -116,15 +122,17 @@
 
                         </div>
 
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <input class="form-control me-2" type="number" name="Pincode" value="{{Pincode}}"
-                                    placeholder="Your Pincode"
-                                    onkeypress="return event.charCode >= 48 && event.charCode <= 57">
-                                {{!-- <button class="btn btn-primary" type="button" id="submit">Check</button> --}}
-                                {{#if errors.pincode}}<div class="text-danger">{{errors.pincode}}</div>{{/if}}
-                            </div>
+                                        <div class="col-lg-6">
+                        <div class="form-group">
+                            <input class="form-control me-2" type="number" name="Pincode" value="{{Pincode}}"
+                                placeholder="Your Pincode"
+                                onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                                style="appearance: none; -webkit-appearance: none; -moz-appearance: none;">
+                            {{!-- <button class="btn btn-primary" type="button" id="submit">Check</button> --}}
+                            {{#if errors.pincode}}<div class="text-danger">{{errors.pincode}}</div>{{/if}}
                         </div>
+                    </div>
+
                     </div>
 
                     <div class="form-group position-relative">

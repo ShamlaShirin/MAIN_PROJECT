@@ -1,0 +1,95 @@
+<style>
+    .header {
+        background-color: rgb(231, 231, 231);
+    }
+</style>
+
+<main id="main" class="container mt-5">
+
+    <div class="pagetitle">
+        <h3>Feedback and Ratings </h3>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item">Orders</li>
+                <li class="breadcrumb-item active">Feedback and Ratings</li>
+            </ol>
+        </nav>
+    </div><!-- End Page Title -->
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form action="/feedback" enctype="multipart/form-data" method="POST" onsubmit="return validate()">
+                    <input type="hidden" name="Id" value="{{id}}">
+                    <input type="hidden" name="username" value="{{user.Fname}} {{user.Lname}}"/>
+<br>
+                     
+                    <label for="rating">Your Rating:</label>
+                    <div class="rating">
+                        <input type="radio" id="star5" name="rating" value="5"><label for="star5"> 5 <i class="bi bi-star-fill" style="color: #ffc107;"></i>
+                        <i class="bi bi-star-fill" style="color: #ffc107;"></i>
+                          <i class="bi bi-star-fill" style="color: #ffc107;"></i>
+                            <i class="bi bi-star-fill" style="color: #ffc107;"></i>
+                              <i class="bi bi-star-fill" style="color: #ffc107;"></i>
+                        </label><br>
+                        <input type="radio" id="star4" name="rating" value="4"><label for="star4">4 <i class="bi bi-star-fill" style="color: #ffc107;"></i>
+                        <i class="bi bi-star-fill" style="color: #ffc107;"></i>
+                        <i class="bi bi-star-fill" style="color: #ffc107;"></i>
+                          <i class="bi bi-star-fill" style="color: #ffc107;"></i>
+                        </label><br>
+                        <input type="radio" id="star3" name="rating" value="3"><label for="star3">3 <i class="bi bi-star-fill" style="color: #ffc107;"></i>
+                           <i class="bi bi-star-fill" style="color: #ffc107;"></i>
+                        <i class="bi bi-star-fill" style="color: #ffc107;"></i>
+                        </label><br>
+                        <input type="radio" id="star2" name="rating" value="2"><label for="star2">2 <i class="bi bi-star-fill" style="color: #ffc107;"></i>
+                        <i class="bi bi-star-fill" style="color: #ffc107;"></i>
+                        </label><br>
+                        <input type="radio" id="star1" name="rating" value="1"><label for="star1">1<i class="bi bi-star-fill"
+                                style="color: #ffc107;"></i></label>
+                    </div>
+                    
+                    <br>
+
+                    <label for="">Your feedback</label>
+                    <textarea id="review" id="username" name="feedback" class="form-control" rows="5"
+                        placeholder="Enter your Feedback here..." required></textarea>
+
+                    <textarea id="description" id="desc" name="description" class="form-control" rows="3"
+                        placeholder="Enter your description here..." hidden></textarea>
+
+                    <!-- Validation error message -->
+                    <p id="linkErrorMessage" style="color: red;"></p>
+
+                    <button type="submit" class="btn btn-success mt-2 w-100">Submit</button>
+                </form>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+                        
+</main>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+    function validate() {
+        // Get the current date
+        const currentDate = new Date();
+        const currentDateFormatted = currentDate.toISOString(); // Format it as needed
+
+        // Set the current date in the hidden input field
+        const currentDateInput = document.getElementById('currentDate');
+        currentDateInput.value = currentDateFormatted;
+
+        // If the link is valid, clear any previous error message
+        const errorElement = document.getElementById('linkErrorMessage');
+        errorElement.textContent = '';
+
+        // Allow form submission
+        return true;
+    }
+</script>

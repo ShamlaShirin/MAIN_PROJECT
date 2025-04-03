@@ -4,63 +4,40 @@
     }
 </style>
 
-<div class="page-content-wrapper py-3"><br>
+<div class="page-content-wrapper py-3">
     <div class="container-lg">
-        <!-- Checkout Wrapper -->
         <div class="checkout-wrapper-area">
             <form id="checkout-form">
                 <div class="row g-2">
                     <div class="col-lg-6">
                         <div class="card shadow">
                             <div class="card-body">
-
                                 <h6 class="mb-3">Enter your billing details</h6>
-                                <input type="text" name="userId" value="{{user._id}}" hidden>
+                                <input type="hidden" name="userId" value="{{user._id}}">
                                 <input type="hidden" name="roomId" value="{{room._id}}">
 
                                 <div class="form-group">
                                     <input class="form-control mb-3" type="text" name="Fname"
-                                        value={{user.Fname}}{{user.Lname}} placeholder="Your full name">
+                                        value="{{user.Fname}} {{user.Lname}}" placeholder="Your full name">
                                 </div>
                                 <div class="form-group">
-                                    <input class="form-control mb-3" type="number" name="Phone" value={{user.Phone}}
+                                    <input class="form-control mb-3" type="number" name="Phone" value="{{user.Phone}}"
                                         placeholder="Your Number">
                                 </div>
                                 <div class="form-group">
-                                    <input class="form-control mb-3" type="email" name="Email" value={{user.Email}}
+                                    <input class="form-control mb-3" type="email" name="Email" value="{{user.Email}}"
                                         placeholder="Your email">
                                 </div>
-
-                                <div class="form-group">
-                                    <input class="form-control mb-3" type="text" name="Pincode" value={{user.Pincode}}
-                                        placeholder="Postcode or ZIP">
-                                </div>
-                                <div class="form-group">
-                                    <input class="form-control mb-3" type="text" name="District" value={{user.District}}
-                                        placeholder="Street address">
-                                </div>
-
-                                {{!-- <div class="form-group">
-                                    <input class="form-control mb-3" type="text" name="City" value={{user.City}}
-                                        placeholder="City">
-                                </div> --}}
-                                {{!-- <div class="form-group">
-                                    <textarea class="form-control mb-3" id="notes" name="Address" cols="30" rows="10"
-                                        placeholder="Address">{{user.Address}}</textarea>
-                                </div> --}}
-
                             </div>
                         </div>
 
                         <div class="card shadow mt-2">
                             <div class="card-body">
-
                                 <h6 class="mb-3">Addons</h6>
                                 <hr>
-
                                 <div class="form-group mb-3">
-                                    <label for="">Select Bedsheet Color</label>
-                                    <select class="form-select" name="bedsheet" aria-label="Default select example">
+                                    <label>Select Bedsheet Color</label>
+                                    <select class="form-select" name="bedsheet">
                                         <option selected value="not selected" disabled>Select Color</option>
                                         <option value="White">White</option>
                                         <option value="Dark Gray">Dark Gray</option>
@@ -68,110 +45,262 @@
                                         <option value="Pink">Pink</option>
                                     </select>
                                 </div>
-
-                                <div class="form-group mb-3">
-                                    <label for="">Select Extra Bed</label>
-                                    <select class="form-select" name="beds" aria-label="Default select example">
+                                 <div class="form-group mb-3">
+                                    <label>Select Extra Bed</label>
+                                    <select class="form-select" name="beds">
                                         <option selected value="not selected" disabled>Select</option>
                                         <option value="1">1</option>
                                         <option value="2">2</option>
                                     </select>
                                 </div>
-
-
                                 <div class="form-group">
-                                    <label for="">Note</label>
-                                    <textarea class="form-control mb-3" id="notes" name="Note" cols="10" rows="2"
+                                    <label>Note</label>
+                                    <textarea class="form-control mb-3" name="Note" cols="10" rows="2"
                                         placeholder="Write Anything..."></textarea>
                                 </div>
-
                             </div>
                         </div>
                     </div>
+
                     <div class="col-lg-6">
                         <div class="card shadow mb-2 p-4">
                             <h6>Room Details</h6>
                             <hr>
-                            <h6>
-                                <div class="mb-2"><b>Room Name :</b> {{room.roomname}}<br></div>
-                                <div class="mb-2"><b>Price :</b> {{room.Price}}/-<br></div>
-                                <hr>
-                                <div class="mb-2"><b>Total Price :</b> <span class="text-danger">{{room.Price}}</span>
-                                    /-<br>
-
-                                    <div class="mb-2"><b>Advance Amount :</b> <span
-                                            class="text-danger">{{room.AdvPrice}}/-</span>
-                                    </div>
-
-                            </h6>
+                            <b>Room Name:</b> {{room.name}}<br>
+                            <b>Room No:</b> {{room.roomnumber}}<br>
+                            <b>Price per Night:</b> <span id="originalPrice" style="text-decoration: none;">{{room.Price}}/-</span> <br>
+                             <div id="discountSection" style="display: none;">
+            <b>Discounted Price per Night:</b> <span id="discountedPrice" style="color: green; font-weight: bold;"></span>/-<br>
+        </div>
                         </div>
-                        <div class="card shadow p-4">
-                            <label>Select a date</label>
-                            <input type="date" class="form-control" name="selecteddate" id="dateInput" required />
 
-                            {{#if error}}
-                            <div style="color: red;">
-                                <strong>{{error}}</strong>
+                        <div class="card shadow p-4">
+                               <label>Discount Code</label>
+                            <div class="input-group mb-3">
+                                <input type="text" id="discountCode" class="form-control" placeholder="Enter Code">
+                                <input type="hidden" id="roomid" name="room" value="{{room._id}}">
+                                 
+                                <button id="applyDiscount" class="btn btn-dark">Apply</button>
+                               
                             </div>
-                            {{/if}}
-                            <hr>
+                             <div id="discountMessage" style="color: red; display: none;"></div>
+                             <hr>
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="radio" name="payment-method" value="COD" checked>
-                                <label class="form-check-label" for="darkRadio1">Booking (without payment)</label>
+                                <label>Booking (without payment)</label>
                             </div>
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="radio" name="payment-method" value="ONLINE">
-                                <label class="form-check-label" for="darkRadio2">Pay & Book</label>
+                                <label>Pay & Book</label>
                             </div>
-
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="radio" name="payment-method" value="ADVANCE">
-                                <label class="form-check-label" for="darkRadio2">Pay Advance
-                                    ({{room.AdvPrice}}/-)</label>
+                                <label>Pay Advance ({{room.AdvPrice}}/-) <span id="discountedPrice2" style="color: green; font-weight: bold;"></span></label>
                             </div>
+                            <label>Check-in Date</label>
+                            <input type="date" class="form-control" name="checkin" id="checkinDate" required>
 
-                            <button class="btn btn-dark mt-3 w-100" type="submit">Book Now</button>
+                            <label>Check-out Date</label>
+                            <input type="date" class="form-control" name="checkout" id="checkoutDate" required>
+
+                            
+                           
+                           
+                            <div id="availabilityMessage" style="color: red; display: none;"></div>
+                             <button id="check" class="btn btn-dark mt-3 w-100">Check Availability</button>
+
+
+                            <button id="smt" class="btn btn-dark mt-3 w-100" type="submit" disabled>Book Now</button>
+                        </div>
+                    </div>
+                </div>
             </form>
+           
         </div>
     </div>
 </div>
-</form>
-</div>
-</div>
-</div>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+   
 
 <script>
-    $("#checkout-form").submit((e) => {
+    document.addEventListener("DOMContentLoaded", function () {
+    const checkinDate = document.getElementById("checkinDate");
+    const checkoutDate = document.getElementById("checkoutDate");
+
+
+
+    function setMinDates() {
+        const today = new Date().toISOString().split("T")[0]; // Format YYYY-MM-DD
+        checkinDate.setAttribute("min", today);
+        checkoutDate.setAttribute("min", today);
+    }
+
+    setMinDates(); // Set min dates on page load
+
+   
+});
+</script>
+
+<script>
+      document.addEventListener("DOMContentLoaded", function () {
+        let discountApplied = false;
+    let discountPercentage = 0;
+        const discountInput = document.getElementById("discountCode");
+    const applyDiscountBtn = document.getElementById("applyDiscount");
+    const discountMessage = document.getElementById("discountMessage");
+    const originalPriceElement = document.getElementById("originalPrice");
+    const discountedPriceElement = document.getElementById("discountedPrice");
+    const discountedPrice2=document.getElementById('discountedPrice');
+    const discountSection = document.getElementById("discountSection");
+    let originalPrice = parseFloat(originalPriceElement.innerText);
+           document.getElementById("applyDiscount").addEventListener("click",async function (event) {
+        event.preventDefault(); // Prevents form submission
+          const discountCode = document.getElementById("discountCode").value.trim();
+        const roomId = "{{room._id}}";
+
+         if (!discountCode) {
+        discountMessage.textContent = "Please enter a discount code.";
+        discountMessage.style.display = "block";
+        return;
+    }
+    
+    try {
+            console.log("Sending request:", JSON.stringify({ code: discountCode, room: roomId }));
+
+            const response = await fetch("/check-discount-code", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code: discountCode, room: roomId })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("Response data:", data);
+
+           if (data.success) {
+    const discountAmount = (originalPrice * data.percentage) / 100;
+    const newPrice = originalPrice - discountAmount;
+
+
+                discountSection.style.display = "block";
+    discountedPriceElement.innerText = newPrice.toFixed(2);
+     discountedPrice2.innerText = newPrice.toFixed(2);
+    discountMessage.textContent = "Discount applied successfully!";
+    discountMessage.style.color = "green";
+    discountApplied = true;
+} else {
+    discountMessage.textContent = data.message || "Invalid discount code.";
+    discountMessage.style.color = "red";
+    discountApplied = false;
+}
+            
+            discountMessage.style.display = "block";
+
+        } catch (error) {
+            console.error("Error checking discount code:", error);
+            discountMessage.textContent = "Something went wrong. Please try again.";
+            discountMessage.style.display = "block";
+        }
+           })
+
+           $("#checkout-form").submit((e) => {
         e.preventDefault();
+          const advancePrice = "{{ room.AdvPrice }}";
 
         let selectedPaymentMethod = $("input[name='payment-method']:checked").val();
-        let advanceAmount = {{ room.AdvPrice }}; // Ensure correct Handlebars syntax
-    let totalAmount = {{ room.Price }};
+        let totalAmount = originalPrice;
+        let advanceAmount = advancePrice;
 
-    let paymentAmount = selectedPaymentMethod === "ADVANCE" ? advanceAmount : totalAmount;
-
-    $.ajax({
-        url: '/place-order',
-        method: 'post',
-        data: $("#checkout-form").serialize(),
-        success: (response) => {
-            if (response.codSuccess) {
-                location.href = '/order-placed';
-            } else {
-                // Pass the correct amount to Razorpay
-                razorpayPayment(response, paymentAmount);
-            }
-        },
-        error: (xhr, status, error) => {
-            console.error("Error placing order:", xhr.responseText);
-            alert("An error occurred while placing the order. Please try again.");
+        if (discountApplied) {
+            totalAmount = originalPrice * (1 - discountPercentage / 100);
+            advanceAmount = totalAmount / 2; // Assuming advance is half of the discounted total
         }
+
+        let paymentAmount = selectedPaymentMethod === "ADVANCE" ? advanceAmount : totalAmount;
+
+        $.ajax({
+            url: '/place-order',
+            method: 'post',
+            data: $("#checkout-form").serialize(),
+            success: (response) => {
+                if (response.codSuccess) {
+                    location.href = '/order-placed';
+                } else {
+                    // Pass the correct amount to Razorpay
+                    razorpayPayment(response, paymentAmount);
+                }
+            },
+            error: (xhr, status, error) => {
+                console.error("Error placing order:", xhr.responseText);
+                alert("An error occurred while placing the order. Please try again.");
+            }
+        });
     });
-    });
+
+      });
+      
+    
 </script>
+
+<script>
+
+document.getElementById("check").addEventListener("click", async function (event) {
+    event.preventDefault();
+    
+    const checkinDate = document.getElementById("checkinDate").value;
+    const checkoutDate = document.getElementById("checkoutDate").value;
+    const roomId = "{{room._id}}";
+  
+   
+  
+
+    // Ensure checkout date is always after check-in date
+    //checkinDate.addEventListener("change", function () {
+        //checkoutDate.min = checkinDate.value;
+   // }); --}}
+
+    if (!checkinDate || !checkoutDate) {
+        alert("Please select both check-in and check-out dates.");
+        return;
+    }
+
+    if (new Date(checkoutDate) < new Date(checkinDate)) {
+        alert("Check-out date must be after check-in date.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`/check-availability/?roomId=${roomId}&checkin=${checkinDate}&checkout=${checkoutDate}`);
+        const data = await response.json();
+        const availabilityMessage = document.getElementById("availabilityMessage");
+        const bookButton = document.getElementById("smt");
+
+        if (data.available) {
+            availabilityMessage.style.color = "green";
+            availabilityMessage.textContent = "Room is available!";
+            bookButton.disabled = false;
+        } else {
+            availabilityMessage.style.color = "red";
+            availabilityMessage.textContent = "Room is not available.";
+            bookButton.disabled = true;
+        }
+
+        availabilityMessage.style.display = "block";
+    } catch (error) {
+        console.error("Error checking availability:", error);
+        alert("Something went wrong! Please try again.");
+    }
+});
+
+</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+
 
 <script>
     function razorpayPayment(order) {
@@ -182,7 +311,7 @@
             "name": "Ginberry",
             "description": "Test Transaction",
             "image": "https://example.com/your_logo",
-            "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+            "order_id": order.id, //This is a sample Order ID. Pass the id obtained in the response of Step 1
             "handler": function (response) {
                 verifyPayment(response, order)
             },
@@ -225,39 +354,3 @@
 
 </script>
 
-<script>
-    const dateInput = document.getElementById('dateInput');
-
-    // Get today's date
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-    const dd = String(today.getDate()).padStart(2, '0');
-
-    // Set the minimum date to today
-    dateInput.setAttribute('min', `${yyyy}-${mm}-${dd}`);
-
-    // Function to disable weekends
-    dateInput.addEventListener('input', async function () {
-        const selectedDate = new Date(this.value);
-        const day = selectedDate.getUTCDay();
-
-        // Check if the selected date is Saturday (6) or Sunday (0)
-
-        // Check if the date is already booked
-        const response = await fetch(`/check-date-booking`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ selecteddate: this.value }) // Send the selected date
-        });
-
-        const data = await response.json();
-        if (data.booked) {
-            alert("This date is already booked.");
-            this.value = ""; // Clear the input
-        }
-
-    });
-</script>

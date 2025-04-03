@@ -1,0 +1,92 @@
+<main id="main" class="main">
+
+    <div class="pagetitle">
+        <h1>Reports</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                <li class="breadcrumb-item active">Reports</li>
+            </ol>
+        </nav>
+    </div><!-- End Page Title -->
+
+    <div class="row">
+        <div class="col-lg-4">
+            <a href="#" class="report-trigger" data-route="/admin/booking-report">
+            <div class="card p-3 shadow">
+                <h5>Booking Report</h5>
+            </div>
+            </a>
+        </div>
+        {{!-- <div class="col-lg-6">
+            <div class="card p-3 shadow">
+                <h5>Payments Reports</h5>
+                <a href="/admin/payment/all-payments" class="btn btn-sm btn-dark mt-2">View</a>
+            </div>
+        </div> --}}
+    </div>
+
+</main><!-- End #main -->
+
+<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+        class="bi bi-arrow-up-short"></i></a>
+<!-- Modal for Date Selection -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Date Range</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reportForm">
+                    <div class="mb-3">
+                        <label for="fromDate" class="form-label">From Date</label>
+                        <input type="date" id="fromDate" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="toDate" class="form-label">To Date</label>
+                        <input type="date" id="toDate" class="form-control" required>
+                    </div>
+                    <input type="hidden" id="reportRoute">
+                    <button type="submit" class="btn btn-primary">Generate Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $(".report-trigger").on("click", function () {
+            let route = $(this).data("route");
+            $("#reportRoute").val(route);
+            $("#fromDate").val(""); // Clear previous selections
+            $("#toDate").val("");
+            $("#error-message").text(""); // Clear previous errors
+            $("#reportModal").modal("show");
+        });
+
+        $("#reportForm").on("submit", function (e) {
+            e.preventDefault();
+
+            let fromDate = $("#fromDate").val();
+            let toDate = $("#toDate").val();
+            let route = $("#reportRoute").val();
+
+            // Validation: Check if both dates are filled
+            if (!fromDate || !toDate) {
+                $("#error-message").text("Both From Date and To Date are required.");
+                return;
+            }
+
+            // Validation: Check if From Date is not greater than To Date
+            if (new Date(fromDate) > new Date(toDate)) {
+                $("#error-message").text("From Date cannot be later than To Date.");
+                return;
+            }
+
+            // If validation passes, redirect to the report page
+            window.location.href = route + "?fromDate=" + fromDate + "&toDate=" + toDate;
+        });
+    });
+</script>

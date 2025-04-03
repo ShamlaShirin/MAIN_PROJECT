@@ -46,90 +46,82 @@
 <main id="main" class="main">
 
     <div class="pagetitle">
-        <h1>Edit Category</h1>
+        <h1>Edit Discount offers</h1>
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/admin">Home</a></li>
-                <li class="breadcrumb-item">Categorys</li>
-                <li class="breadcrumb-item active">Edit Category</li>
+                <li class="breadcrumb-item">Discount</li>
+                <li class="breadcrumb-item active">Edit Discount offers</li>
             </ol>
         </nav>
     </div><!-- End Page Title -->
-    <section class="section">
-        <div class="row">
-            <div class="col-lg-7">
-                <div class="card">
-                    <div class="card-body">
-                        {{!-- <h5 class="card-title">Multi Columns Form</h5> --}}
+ <section class="section">
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-body">
+                    <form class="row g-3 mt-3" action="/admin/discount/edit-discount/{{discount._id}}" 
+                        enctype="multipart/form-data" method="POST">
 
-                        <!-- Multi Columns Form -->
-                        <form class="row g-3 mt-3" action="/admin/category/edit-category/{{category._id}}"
-                            enctype="multipart/form-data" method="POST">
-                            <div class="col-md-12">
-                                <label for="inputName5" class="form-label">Category Name <span
-                                        class="text-danger">*</span></label>
-                                <input type="text" class="form-control" value="{{category.name}}" name="name"
-                                    id="inputName5">
-                                {{!-- <select class="form-select" name="name" aria-label="Default select example"
-                                    required>
-                                    <option selected disabled>Select Room</option>
-                                    <option value="Boat house">Boat house</option>
-                                    <option value="igloo cave">Igloo Cave</option>
-                                    <option value="pool villa">Pool Villa</option>
+                        <div class="col-md-12">
+                            <label for="inputName" class="form-label">Title <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="name" id="inputName" value="{{discount.name}}" required>
+                            <br>
+                            <select class="form-select" name="subname" aria-label="Default select example" required>
+                         
+                                {{#each rooms}}
+                                    <option value="{{this.name}}" {{#if (eq this.name ../discount.subname)}}selected{{/if}}>{{this.name}}</option>
+                                {{/each}}
+                            </select>
+                        </div>
 
-                                </select> --}}
-                            </div>
+                        <label for="discountCode" class="form-label">Discount Code <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="code" id="discountCode" value="{{discount.code}}" required>
 
+                        <label for="percentage" class="form-label">Percentage Applicable <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" name="percentage" id="percentage" value="{{discount.percentage}}" required>
 
+                        <div class="col-md-12">
+                            <label for="desc" class="form-label">Description</label>
+                            <textarea class="form-control" name="desc" id="desc">{{discount.desc}}</textarea>
+                        </div>
 
-
-
-                            <div class="col-md-12">
-                                <label for="inputEmail5" class="form-label">Description</label>
-                                <textarea type="text" class="form-control" name="desc"
-                                    id="inputEmail5">{{category.desc}}</textarea>
-                            </div>
-
-
-                            <div class="col-md-12">
-                                <label for="inputEmail5" class="form-label">List Facilities</label>
-                                <textarea type="text" class="form-control" name="fesilities"
-                                    id="inputEmail5">{{category.fesilities}}</textarea>
-                            </div>
-
-
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="col-lg-5">
-                <div class="card p-3">
-                    <div class="card-body">
-                        <label class="mb-3">Category Photos <span class="text-danger">*</span></label>
-
-
-                        <input type="file" name="Image" class="form-control" accept="image/*"
-                            onchange="viewImage(event)">
-                        <br>
-                        <img src="/images/category-images/{{category._id}}.png" alt=""
-                            style="width: 15rem; margin-bottom: 8px;" id="imgView">
-
-
-
-                    </div>
+                        <label class="form-label">Offer visibility</label>
+                        <div>
+                            <input type="radio" id="hide" name="offerVisibility" value="hide" {{#if (eq discount.offerVisibility "hide")}}checked{{/if}}>
+                            <label for="hide">Hide</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="display" name="offerVisibility" value="display" {{#if (eq discount.offerVisibility "display")}}checked{{/if}}>
+                            <label for="display">Display</label>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-
         </div>
 
-    </section>
-    <div class="mb-4" style="float: inline-end;
+        <div class="col-lg-5">
+            <div class="card p-3">
+                <div class="card-body">
+                    <label class="mb-3">Photos <span class="text-danger">*</span></label>
+                    <input type="file" name="Image" class="form-control mb-3" accept="image/*">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="mb-4" style="float: inline-end;">
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a href="/admin/discounts" class="btn btn-secondary">Cancel</a>
+</div>
+</form>
+
+    {{!-- <div class="mb-4" style="float: inline-end;
 ">
         <button type="submit" class="btn btn-primary">Submit</button>
         <a href="/admin/rooms/all-rooms" class="btn btn-secondary">Cancel</a>
-    </div>
+    </div> --}}
     </form>
 
 

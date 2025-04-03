@@ -77,49 +77,50 @@
                             </div>
 
                             <div class="col-md-6">
-    <label for="inputPhone" class="form-label">Phone Number</label>
-    <input type="text" name="phone" class="form-control" id="inputPhone" value="{{phone}}" required maxlength="10">
-    <div id="phoneError" class="text-danger"></div> <!-- Error will be shown here -->
-</div>
+                                <label for="inputPhone" class="form-label">Phone Number</label>
+                                <input type="text" name="phone" class="form-control" id="inputPhone" value="{{phone}}"
+                                    required maxlength="10">
+                                <div id="phoneError" class="text-danger"></div> <!-- Error will be shown here -->
+                            </div>
 
-<script>
-    document.getElementById('inputPhone').addEventListener('input', function() {
-        const phoneInput = document.getElementById('inputPhone');
-        const phoneError = document.getElementById('phoneError');
-        let phoneValue = phoneInput.value;
+                            <script>
+                                document.getElementById('inputPhone').addEventListener('input', function () {
+                                    const phoneInput = document.getElementById('inputPhone');
+                                    const phoneError = document.getElementById('phoneError');
+                                    let phoneValue = phoneInput.value;
 
-        // Remove any non-digit characters (i.e., keep only digits)
-        phoneValue = phoneValue.replace(/\D/g, '');
+                                    // Remove any non-digit characters (i.e., keep only digits)
+                                    phoneValue = phoneValue.replace(/\D/g, '');
 
-        // Limit the length to 10 digits
-        if (phoneValue.length > 10) {
-            phoneValue = phoneValue.substring(0, 10);
-        }
+                                    // Limit the length to 10 digits
+                                    if (phoneValue.length > 10) {
+                                        phoneValue = phoneValue.substring(0, 10);
+                                    }
 
-        phoneInput.value = phoneValue; // Update input field with the cleaned phone number
+                                    phoneInput.value = phoneValue; // Update input field with the cleaned phone number
 
-        if (phoneValue.length !== 10) {
-            phoneError.textContent = 'Phone number must be exactly 10 digits.';
-            phoneInput.setCustomValidity('Phone number must be exactly 10 digits.');
-        } else {
-            phoneError.textContent = ''; // Clear error message
-            phoneInput.setCustomValidity(''); // Clear custom validity
-        }
-    });
+                                    if (phoneValue.length !== 10) {
+                                        phoneError.textContent = 'Phone number must be exactly 10 digits.';
+                                        phoneInput.setCustomValidity('Phone number must be exactly 10 digits.');
+                                    } else {
+                                        phoneError.textContent = ''; // Clear error message
+                                        phoneInput.setCustomValidity(''); // Clear custom validity
+                                    }
+                                });
 
-    // Optional: Validate on form submission (if necessary)
-    document.querySelector('form').addEventListener('submit', function(event) {
-        const phoneInput = document.getElementById('inputPhone');
-        const phoneValue = phoneInput.value.replace(/\D/g, '');
+                                // Optional: Validate on form submission (if necessary)
+                                document.querySelector('form').addEventListener('submit', function (event) {
+                                    const phoneInput = document.getElementById('inputPhone');
+                                    const phoneValue = phoneInput.value.replace(/\D/g, '');
 
-        if (phoneValue.length !== 10) {
-            event.preventDefault(); // Prevent form submission if validation fails
-            alert('Please enter a valid 10-digit phone number.');
-        }
-    });
-</script>
+                                    if (phoneValue.length !== 10) {
+                                        event.preventDefault(); // Prevent form submission if validation fails
+                                        alert('Please enter a valid 10-digit phone number.');
+                                    }
+                                });
+                            </script>
 
-                            <div class="col-md-12">
+                            {{!-- <div class="col-md-12">
                                 <label for="inputState" class="form-label">Select Department</label>
                                 <select id="inputState" name="dept" class="form-select" required>
                                     <option selected disabled>Choose...</option>
@@ -129,7 +130,7 @@
                                     <option value="House Keeper">House Keeper</option>
 
                                 </select>
-                            </div>
+                            </div> --}}
                             <div class="col-12">
                                 <label for="inputAddress5" class="form-label">Address</label>
                                 <textarea type="text" class="form-control" name="address" id="inputAddres5s"

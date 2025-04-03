@@ -1,0 +1,174 @@
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h2 class="text-2xl font-bold mb-4">Dynamic Pricing</h2>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                <li class="breadcrumb-item active">Dynamic Pricing</li>
+            </ol>
+        </nav>
+    </div>
+    
+    <div class="row">
+        <div class="container mx-auto p-6">
+        <div class="border border-warning mb-1">
+             <form id="seasonForm">
+            <div class="mb-2">
+                <label class="form-label">Select Current Season:</label>
+                <div>
+                    <input type="radio" name="season" value="normal" id="normal" {{#if (eq currentSeason "normal")}}checked{{/if}}> 
+                    <label for="normal">Normal</label>
+
+                    <input type="radio" name="season" value="summer" id="summer" {{#if (eq currentSeason "summer")}}checked{{/if}}> 
+                    <label for="summer">Summer</label>
+
+                    <input type="radio" name="season" value="winter" id="winter" {{#if (eq currentSeason "winter")}}checked{{/if}}> 
+                    <label for="winter">Winter</label>
+
+                    <input type="radio" name="season" value="offseason" id="offseason" {{#if (eq currentSeason "offseason")}}checked{{/if}}> 
+                    <label for="offseason">Off-Season</label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Season</button>
+         </form>
+
+        </div>
+            <table class="table table-bordered border-dark">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="p-2">Category</th>
+                        <th class="p-2">Room Image</th>
+                        <th class="p-2">Price</th>
+                        <th class="p-2">Advance Price</th>
+                        <th class="p-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each rooms}}
+                    <tr class="border">
+                        <td class="p-2">{{categoryName}}</td>
+                        <td class="p-2"> 
+                            <img src="/images/room-images/{{this._id}}-1.png" width="100%" height="200px" style="background-position: center; border-radius:10px;" alt="">
+                        </td>
+                        <td class="p-2">{{Price}}</td>
+                        <td class="p-2">{{AdvPrice}}</td>
+                        <td class="p-2">
+                            <button onclick="openModal('{{categoryId}}')" class="btn btn-success text-white px-4 py-2 rounded">
+                                Set Dynamic Price
+                            </button>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="pricingModal" tabindex="-1" aria-labelledby="pricingModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pricingModalLabel">Update Pricing</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label">Normal Price:</label>
+                    <input type="number" id="normalPrice" class="form-control mb-2" oninput="updateAdvancePrices()">
+                    
+                    <label class="form-label">Summer Price:</label>
+                    <input type="number" id="summerPrice" class="form-control mb-2" oninput="updateAdvancePrices()">
+                    
+                    <label class="form-label">Winter Price:</label>
+                    <input type="number" id="winterPrice" class="form-control mb-2" oninput="updateAdvancePrices()">
+                    
+                    <label class="form-label">Off-Season Price:</label>
+                    <input type="number" id="offseasonPrice" class="form-control mb-2" oninput="updateAdvancePrices()">
+                    
+                    <hr>
+                    
+                    <label class="form-label">Normal Advance Price:</label>
+                    <input type="text" id="normalAdvPrice" class="form-control mb-2" readonly>
+                    
+                    <label class="form-label">Summer Advance Price:</label>
+                    <input type="text" id="summerAdvPrice" class="form-control mb-2" readonly>
+                    
+                    <label class="form-label">Winter Advance Price:</label>
+                    <input type="text" id="winterAdvPrice" class="form-control mb-2" readonly>
+                    
+                    <label class="form-label">Off-Season Advance Price:</label>
+                    <input type="text" id="offseasonAdvPrice" class="form-control mb-2" readonly>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="updatePrice()">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    let selectedCategoryId = null;
+
+    function openModal(categoryId) {
+        selectedCategoryId = categoryId;
+        let pricingModal = new bootstrap.Modal(document.getElementById('pricingModal'));
+        pricingModal.show();
+    }
+
+    function updateAdvancePrices() {
+        document.getElementById("normalAdvPrice").value = (document.getElementById("normalPrice").value / 2) || '';
+        document.getElementById("summerAdvPrice").value = (document.getElementById("summerPrice").value / 2) || '';
+        document.getElementById("winterAdvPrice").value = (document.getElementById("winterPrice").value / 2) || '';
+        document.getElementById("offseasonAdvPrice").value = (document.getElementById("offseasonPrice").value / 2) || '';
+    }
+
+    async function updatePrice() {
+        const data = {
+            categoryId: selectedCategoryId,
+            normalPrice: document.getElementById("normalPrice").value,
+            summerPrice: document.getElementById("summerPrice").value,
+            winterPrice: document.getElementById("winterPrice").value,
+            offseasonPrice: document.getElementById("offseasonPrice").value,
+            normalAdvPrice: document.getElementById("normalAdvPrice").value,
+            summerAdvPrice: document.getElementById("summerAdvPrice").value,
+            winterAdvPrice: document.getElementById("winterAdvPrice").value,
+            offseasonAdvPrice: document.getElementById("offseasonAdvPrice").value
+        };
+
+        const response = await fetch("/admin/update-room-pricing", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            alert("Pricing updated successfully!");
+            location.reload();
+        } else {
+            alert("Failed to update pricing.");
+        }
+    }
+</script>
+<script>
+    document.getElementById("seasonForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        const selectedSeason = document.querySelector('input[name="season"]:checked').value;
+
+        const response = await fetch("/admin/update-season", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ season: selectedSeason })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            alert("Season updated successfully!");
+            location.reload();
+        } else {
+            alert("Failed to update season.");
+        }
+    });
+</script>

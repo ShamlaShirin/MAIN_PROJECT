@@ -1,7 +1,7 @@
 <main id="main" class="main">
 
     <div class="pagetitle">
-        <h1>Manage Payment</h1>
+        <h1>Payment</h1>
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
@@ -31,6 +31,8 @@
                                         <th>Room</th>
                                         <th>User</th>
                                         <th>Payment</th>
+                                        {{!-- <th>Balance</th> --}}
+                                        <th>Payment status</th>
                                         <th>Payment Type</th>
 
                                     </tr>
@@ -43,7 +45,7 @@
 
                                         <!-- Room Details -->
                                         <td>
-                                            {{room.roomname}}
+                                            {{room.roomnumber}}
                                         </td>
 
                                         <!-- Assigned To User -->
@@ -54,10 +56,16 @@
                                         </td>
 
                                         <!-- Assign Date -->
-                                        <td>{{this.fullAmount}}/-</td>
+                                        <td>
+                                            {{halfAmount this.fullAmount this.paymentMethod}}/-
+                                            </td>
+                                        <td>
+                                            {{#if (eq this.paymentMethod "COD")}} Advance amount recived {{else}} completed {{/if}}
+                                        </td>
                                         <td>
                                             {{this.paymentMethod}}
                                         </td>
+
 
 
                                     </tr>

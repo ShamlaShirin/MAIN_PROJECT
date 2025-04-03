@@ -205,17 +205,7 @@ module.exports = {
     });
   },
 
-  getAllProducts: () => {
-    return new Promise(async (resolve, reject) => {
-      let products = await db
-        .get()
-        .collection(collections.PRODUCTS_COLLECTION)
-        .find()
-        .toArray();
-      resolve(products);
-    });
-  },
-
+  
   doSignup: (userData) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -225,13 +215,14 @@ module.exports = {
         // Set default values
         userData.isDisable = false;  // User is not disabled by default
         userData.createdAt = new Date();  // Set createdAt to the current date and time
-
+console.log("dosi------------")
         // Insert the user into the database
         db.get()
           .collection(collections.USERS_COLLECTION)
           .insertOne(userData)
           .then((data) => {
             // Resolve with the inserted user data
+            console.log("resolved ^^^^^^^^^^^")
             resolve(data.ops[0]);
           })
           .catch((err) => {
@@ -323,57 +314,7 @@ module.exports = {
     });
   },
 
-
-  getTotalAmount: (userId) => {
-    return new Promise(async (resolve, reject) => {
-      let total = await db
-        .get()
-        .collection(collections.CART_COLLECTION)
-        .aggregate([
-          {
-            $match: { user: objectId(userId) },
-          },
-          {
-            $unwind: "$products",
-          },
-          {
-            $project: {
-              item: "$products.item",
-              quantity: "$products.quantity",
-            },
-          },
-          {
-            $lookup: {
-              from: collections.PRODUCTS_COLLECTION,
-              localField: "item",
-              foreignField: "_id",
-              as: "product",
-            },
-          },
-          {
-            $project: {
-              item: 1,
-              quantity: 1,
-              product: { $arrayElemAt: ["$product", 0] },
-            },
-          },
-          {
-            $group: {
-              _id: null,
-              total: { $sum: { $multiply: ["$quantity", "$product.Price"] } },
-            },
-          },
-        ])
-        .toArray();
-      console.log(total[0].total);
-      resolve(total[0].total);
-    });
-  },
-
-
-
-
-  getRoomDetails: (roomId) => {
+  getRoomDetails: (roomId,currentSeason) => {
     return new Promise((resolve, reject) => {
       if (!ObjectId.isValid(roomId)) {
         reject(new Error('Invalid room ID format'));
@@ -388,6 +329,8 @@ module.exports = {
             reject(new Error('Room not found'));
           } else {
             // Assuming the room has a staffId field
+            room.Price = room[`${currentSeason}Price`] ?? room.normalPrice;
+            room.AdvPrice = room[`${currentSeason}AdvPrice`] ?? room.normalAdvPrice;
             resolve(room);
           }
         })
@@ -396,6 +339,32 @@ module.exports = {
         });
     });
   },
+
+  checkRoomAvailability: async (roomId, checkin, checkout) => {
+    let bookingsCollection = await db.get().collection(collections.ORDER_COLLECTION);
+
+    // Ensure dates are in string format for comparison
+    const checkinDate = new Date(checkin);
+    const checkoutDate = new Date(checkout);
+
+    console.log("chhh",checkinDate,checkoutDate)
+
+    // Check if there are any bookings for the given roomId that overlap with the selected dates
+    const overlappingBooking = await bookingsCollection.findOne({
+        "room._id": ObjectId(roomId),  // Ensure roomId is correctly matched
+        $or: [
+            { 
+                "deliveryDetails.checkin": { $lte: checkoutDate }, 
+                "deliveryDetails.checkout": { $gte: checkinDate } 
+            }, // Overlap check
+            { "deliveryDetails.checkin": checkin }, // Exact same check-in date
+            { "deliveryDetails.checkout": checkout } // Exact same check-out date
+        ]
+    });
+
+    console.log("existingBooking:", overlappingBooking);
+    return !overlappingBooking; // If overlappingBooking exists, return false (room is not available)
+},
 
 
 
@@ -436,7 +405,8 @@ module.exports = {
             District: order.District,
             State: order.State,
             Pincode: order.Pincode,
-            selecteddate: order.selecteddate,
+            checkin: new Date(order.checkin),  // Convert string to Date object
+            checkout: new Date(order.checkout),
             bedsheet: order.bedsheet,
             beds: order.beds,
             Note: order.Note,
@@ -669,25 +639,4 @@ module.exports = {
     });
   },
 
-
-  searchProduct: (details) => {
-    console.log(details);
-    return new Promise(async (resolve, reject) => {
-      db.get()
-        .collection(collections.PRODUCTS_COLLECTION)
-        .createIndex({ Name: "text" }).then(async () => {
-          let result = await db
-            .get()
-            .collection(collections.PRODUCTS_COLLECTION)
-            .find({
-              $text: {
-                $search: details.search,
-              },
-            })
-            .toArray();
-          resolve(result);
-        })
-
-    });
-  },
 };

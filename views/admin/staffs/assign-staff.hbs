@@ -79,13 +79,11 @@
                                 <select id="inputState" name="order" class="form-select" required>
                                     <option selected disabled>Choose...</option>
                                     {{#each orders}}
-                                    <option value="{{this._id}}">{{user.Fname}} - {{deliveryDetails.selecteddate}}
+                                    <option value="{{this._id}}">{{user.Fname}} - {{deliveryDetails.Email}} -{{deliveryDetails.Email}} -{{deliveryDetails.checkin}} (checkin)
                                     </option>
                                     {{/each}}
                                 </select>
                             </div>
-
-
                     </div>
                 </div>
 

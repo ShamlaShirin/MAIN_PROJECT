@@ -69,28 +69,42 @@
                                 <label for="inputName5" class="form-label">Title <span
                                         class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="name" id="inputName5">
-                                {{!-- <select class="form-select" name="room" aria-label="Default select example"
-                                    required>
-                                    <option selected disabled>Select Room</option>
+                                <br>
+                                <select class="form-select" name="subname" aria-label="Default select example" required>
+                                    <option selected disabled>Select Category</option>
                                     {{#each rooms}}
-                                    <option value="{{this._id}}">{{this.name}}</option>
+                                    <option value="{{this.name}}">{{this.name}}</option>
                                     {{/each}}
 
-                                </select> --}}
+                                </select>
                             </div>
-                            <label for="inputName5" class="form-label">Sub Title <span
-                                    class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="subname" id="inputName5">
-
+                            
 
                             <label for="inputName5" class="form-label">Discount Code <span
                                     class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="code" id="inputName5">
 
+                             <label for="inputName5" class="form-label">Percentage Applicable <span
+                                    class="text-danger">*</span></label>
+                            <input type="number" class="form-control" name="percentage" id="inputName5">
+
+
                             <div class="col-md-12">
                                 <label for="inputEmail5" class="form-label">Description</label>
                                 <textarea type="text" class="form-control" name="desc" id="inputEmail5"></textarea>
                             </div>
+
+                             <label for="inputName5" class="form-label">Offer visiblity </label>
+                             <div>
+                                <input type="radio" id="hide" name="offerVisibility" value="hide">
+                                <label for="hide">Hide</label>
+                                </div>
+                                <div>
+                                <input type="radio" id="display" name="offerVisibility" value="display" checked>
+                                <label for="display">Display</label>
+                                </div>
+                             
+                            
 
 
                             {{!-- <div class="col-md-12">

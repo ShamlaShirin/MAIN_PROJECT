@@ -1,5 +1,7 @@
 var express = require("express");
 var adminHelper = require("../helper/adminHelper");
+var staffHelper = require("../helper/staffHelper");
+
 var fs = require("fs");
 const userHelper = require("../helper/userHelper");
 var router = express.Router();
@@ -20,9 +22,15 @@ const verifySignedIn = (req, res, next) => {
 /* GET admins listing. */
 router.get("/", verifySignedIn, function (req, res, next) {
   let administator = req.session.admin;
-  adminHelper.getAllProducts().then((products) => {
-    res.render("admin/home", { admin: true, products, layout: "admin-layout", administator });
-  });
+  // adminHelper.getAllProducts().then((products) => {
+    res.render("admin/home", { admin: true, layout: "admin-layout", administator });
+  // });
+});
+
+router.get("/feedback", verifySignedIn, async function (req, res) {
+  let administator = req.session.admin;
+  let feedbacks = await adminHelper.getAllFeedbacks();
+  res.render("admin/feedbacks", { admin: true, layout: "admin-layout", administator, feedbacks });
 });
 
 
@@ -328,6 +336,66 @@ router.get("/all-rooms", verifySignedIn, function (req, res) {
   });
 });
 
+
+router.get("/dynamic-pricing",verifySignedIn, async function (req, res) {
+  let administator = req.session.admin;
+  const settings = await db.get().collection(collections.SETTINGS_COLLECTION).findOne({});
+  const currentSeason = settings?.currentSeason || "normal";
+
+   adminHelper.roomsPerCategory().then((rooms) => {
+    res.render("admin/dynamic-pricing", { admin: true, layout: "admin-layout", rooms,administator, settings ,currentSeason});
+  });
+})
+
+router.post('/update-room-pricing', async (req, res) => {
+  try {
+    let { categoryId, normalPrice, summerPrice, winterPrice, offseasonPrice } = req.body;
+
+    // Calculate advance prices (50% of the respective season price)
+    let normalAdvPrice = normalPrice / 2;
+    let summerAdvPrice = summerPrice / 2;
+    let winterAdvPrice = winterPrice / 2;
+    let offseasonAdvPrice = offseasonPrice / 2;
+
+    // Update the database with new prices
+    let updatedCount = await adminHelper.updateRoomPricingByCategory(categoryId, {
+      normalPrice: parseFloat(normalPrice),
+      normalAdvPrice,
+      summerPrice: parseFloat(summerPrice),
+      summerAdvPrice,
+      winterPrice: parseFloat(winterPrice),
+      winterAdvPrice,
+      offseasonPrice: parseFloat(offseasonPrice),
+      offseasonAdvPrice
+    });
+
+    res.json({ success: true, message: `${updatedCount} rooms updated successfully!` });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to update room pricing", error });
+  }
+});
+
+
+
+router.get("/reports",verifySignedIn, function (req, res) {
+  let administator = req.session.admin;
+  // adminHelper.getAllrooms().then((rooms) => {
+    res.render("admin/reports", { admin: true, layout: "admin-layout", administator });
+  // });
+})
+router.post("/update-season", async (req, res) => {
+  try {
+      const { season } = req.body;
+
+      await db.get().collection(collections.SETTINGS_COLLECTION)
+          .updateOne({}, { $set: { currentSeason: season } }, { upsert: true });
+
+      res.json({ success: true, message: "Season updated successfully!" });
+  } catch (error) {
+      res.status(500).json({ success: false, message: "Failed to update season", error });
+  }
+});
+
 router.get("/add-room", verifySignedIn, async function (req, res) {
   let administator = req.session.admin;
   let categories = await adminHelper.getAllCategories();
@@ -496,6 +564,31 @@ router.get("/remove-all-users", verifySignedIn, function (req, res) {
   });
 });
 
+router.get("/booking-report", verifySignedIn, async function (req, res) {
+  let administator = req.session.admin;
+
+  // Extract filters from query params
+  let { fromDate, toDate } = req.query;
+
+  let filters = { fromDate, toDate};
+
+  try {
+    let orders = await adminHelper.getAllOrders(filters);
+
+    res.render("admin/report-view", {
+      admin: true,
+      layout: "admin-layout",
+      administator,
+      orders,
+      reportName:"Booking",
+      filters  // Send filters to retain values in the form
+    });
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).send("Server Error");
+  }
+});
+
 router.get("/all-orders", verifySignedIn, async function (req, res) {
   let administator = req.session.admin;
 
@@ -522,21 +615,6 @@ router.get("/all-orders", verifySignedIn, async function (req, res) {
 
 
 
-router.get(
-  "/view-ordered-products/:id",
-  verifySignedIn,
-  async function (req, res) {
-    let administator = req.session.admin;
-    let orderId = req.params.id;
-    let products = await userHelper.getOrderProducts(orderId);
-    res.render("admin/order-products", {
-      admin: true, layout: "admin-layout",
-      administator,
-      products,
-    });
-  }
-);
-
 router.get("/change-status/", verifySignedIn, async function (req, res) {
 
   try {
@@ -554,7 +632,7 @@ router.get("/change-status/", verifySignedIn, async function (req, res) {
       const message = encodeURIComponent(
         `✅ Your booking has been CONFIRMED!\n\nThank you for choosing us! 🏨`
       );
-      return res.redirect(`https://wa.me/${phone}?text=${message}`);
+      return res.redirect(`https://wa.me/+91${phone}?text=${message}`);
     }
 
     if (status === "Declined" && phone) {
@@ -584,12 +662,6 @@ router.get("/cancel-all-orders", verifySignedIn, function (req, res) {
   });
 });
 
-router.post("/search", verifySignedIn, function (req, res) {
-  let administator = req.session.admin;
-  adminHelper.searchProduct(req.body).then((response) => {
-    res.render("admin/search-result", { admin: true, layout: "admin-layout", administator, response });
-  });
-});
 
 
 
@@ -649,7 +721,7 @@ router.post("/delete-category/:id", verifySignedIn, async function (req, res) {
 router.get("/all-payments", verifySignedIn, async function (req, res) {
   let administator = req.session.admin;
   let { fromDate, toDate } = req.query;
-  let orders = await adminHelper.getAllOrders(fromDate, toDate);
+  let orders = await staffHelper.getAllOrders(fromDate, toDate);
   res.render("admin/payment/all-payments", { admin: true, orders, layout: "admin-layout", administator });
 });
 
@@ -669,7 +741,7 @@ router.get("/all-discounts", verifySignedIn, function (req, res) {
 
 router.get("/add-discount", verifySignedIn, async function (req, res) {
   let administator = req.session.admin;
-  let rooms = await adminHelper.getAllrooms()
+  let rooms = await adminHelper.getAllCategories()
   res.render("admin/discount/add-discount", { admin: true, layout: "admin-layout", administator, rooms });
 });
 
@@ -686,15 +758,16 @@ router.post("/add-discount", function (req, res) {
   });
 });
 
-router.get("/edit-discounts/:id", verifySignedIn, async function (req, res) {
+router.get("/discount/edit-discount/:id", verifySignedIn, async function (req, res) {
   let administator = req.session.admin;
   let discountsId = req.params.id;
-  let discounts = await adminHelper.getDiscountDetails(discountsId);
-  console.log(discounts);
-  res.render("admin/discount/edit-discount", { admin: true, discounts, layout: "admin-layout", administator });
+  let discount = await adminHelper.getDiscountDetails(discountsId);
+  let rooms = await adminHelper.getAllCategories()
+
+  res.render("admin/discount/edit-discount", { admin: true, discount, rooms, layout: "admin-layout", administator });
 });
 
-router.post("/edit-discount/:id", verifySignedIn, function (req, res) {
+router.post("/discount/edit-discount/:id", verifySignedIn, function (req, res) {
   let discountsId = req.params.id;
   adminHelper.updateDiscounts(discountsId, req.body).then(() => {
     if (req.files) {
@@ -719,7 +792,7 @@ router.post("/delete-discount/:id", verifySignedIn, async function (req, res) {
 router.get("/assigned-staffs", verifySignedIn, async function (req, res) {
   let administator = req.session.admin;
   let users = await adminHelper.getAllUsers()
-  let orders = await adminHelper.getAllOrders()
+  let orders = await staffHelper.getAllOrders()
   let assignstaffs = await adminHelper.getAllassigns()
   console.log("-------", assignstaffs);
 
@@ -736,7 +809,9 @@ router.post("/delete-assign/:id", verifySignedIn, async function (req, res) {
 router.get("/assign-staff", verifySignedIn, async function (req, res) {
   let administator = req.session.admin;
   let staffs = await adminHelper.getAllstaffs()
-  let orders = await adminHelper.getAllOrders()
+  let orders = await staffHelper.getAllOrders()
+  console.log("---", orders);
+
   res.render("admin/staffs/assign-staff", { admin: true, staffs, orders, layout: "admin-layout", administator });
 });
 

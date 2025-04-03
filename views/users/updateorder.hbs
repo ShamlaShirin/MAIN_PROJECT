@@ -21,12 +21,17 @@
                         <form class="row g-3 " action="/updateorder/{{order._id}}" enctype="multipart/form-data"
                             method="POST">
                             <div class="col-md-6">
-                                <label for="inputName5" class="form-label">Change Date</label>
-                                <input type="date" class="form-control" name="selecteddate"
-                                    value="{{order.deliveryDetails.selecteddate}}" id="inputName5">
+                                <label for="inputName5" class="form-label">Change checkin date</label>
+                                <input type="date" class="form-control" name="checkin"
+                                    value="{{formatDateY order.deliveryDetails.checkin}}" id="checkinDate">
                             </div>
-
-
+                            <div class="col-md-6">
+                                <label for="inputName5" class="form-label">Change checkout date</label>
+                                <input type="date" class="form-control" name="checkout"
+                                    value="{{formatDateY order.deliveryDetails.checkout}}" id="checkoutDate">
+                            </div>
+                            <div id="availabilityMessage" style="color: red; display: none;"></div>
+                             <button id="check" class="btn btn-dark mt-3 w-100">Check Availability</button>
 
                             <div class="card shadow mt-2">
                                 <div class="card-body">
@@ -81,12 +86,70 @@
         </div>
 
     </section>
-    <div class="mb-4" style="float: inline-end;
-">
-        <button type="submit" class="btn btn-primary">Submit</button>
+    <div class="mb-4" style="float: inline-end;">
+        <button id="smt" class="btn btn-dark" type="submit" disabled  >Submit</button>
         <a href="/orders" class="btn btn-secondary">Cancel</a>
     </div>
     </form>
 
 
 </main><!-- End #main -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+document.getElementById("check").addEventListener("click", async function (event) {
+    event.preventDefault();
+
+    const checkinDate = document.getElementById("checkinDate").value;
+    const checkoutDate = document.getElementById("checkoutDate").value;
+    const roomId = '{{order.room._id}}'; // Fixed the typo
+    const availabilityMessage = document.getElementById("availabilityMessage");
+    const bookButton = document.getElementById("smt");
+    console.log(roomId,"roomIdroomId")
+
+    if (!checkinDate || !checkoutDate) {
+        availabilityMessage.style.color = "red";
+        availabilityMessage.textContent = "Please select both check-in and check-out dates.";
+        availabilityMessage.style.display = "block";
+        return;
+    }
+
+    if (new Date(checkoutDate) < new Date(checkinDate)) {
+        availabilityMessage.style.color = "red";
+        availabilityMessage.textContent = "Check-out date must be after check-in date.";
+        availabilityMessage.style.display = "block";
+        return;
+    }
+
+    try {
+        const response = await fetch(`/check-availability/?roomId=${roomId}&checkin=${checkinDate}&checkout=${checkoutDate}`);
+        const data = await response.json();
+
+        if (data.available) {
+            availabilityMessage.style.color = "green";
+            availabilityMessage.textContent = "Room is available!";
+            bookButton.disabled = false; // Enable submit button
+        } else {
+            availabilityMessage.style.color = "red";
+            availabilityMessage.textContent = "Room is not available.";
+            bookButton.disabled = true; // Keep submit button disabled
+        }
+
+        availabilityMessage.style.display = "block";
+    } catch (error) {
+        console.error("Error checking availability:", error);
+        availabilityMessage.style.color = "red";
+        availabilityMessage.textContent = "Something went wrong! Please try again.";
+        availabilityMessage.style.display = "block";
+    }
+});
+
+// Block form submission if availability is not checked
+document.querySelector("form").addEventListener("submit", function (event) {
+    const bookButton = document.getElementById("smt");
+
+    if (bookButton.disabled) {
+        event.preventDefault();
+        alert("Please check room availability before submitting.");
+    }
+});
+</script>

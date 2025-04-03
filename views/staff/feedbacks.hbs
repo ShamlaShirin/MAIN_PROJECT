@@ -1,0 +1,66 @@
+]
+<main id="main" class="main">
+
+    <div class="pagetitle">
+        <h1>Manage Notifications</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+                <li class="breadcrumb-item">Notifications</li>
+                <li class="breadcrumb-item active">All-Notifications</li>
+            </ol>
+        </nav>
+    </div><!-- End Page Title -->
+
+
+
+
+
+    <section class="section">
+       
+
+        <div class="row">
+
+            <div class="col-lg-12">
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">All Feedback</h5>
+                        <div class="table-responsive">
+                                              <table class="table datatable">
+                        <h5 class="mt-3 mb-2">feedback and ratings</h5>
+    <thead>
+                            <tr>
+                                <th scope="col">No</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">User Name</th>
+                                <th scope="col">Room</th>
+                                {{!-- <th scope="col">Workspace Name</th> --}}
+                                 <th scope="col">Rating</th>
+                                <th scope="col">Feedback</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each feedbacks}}
+                            <tr class="">
+                                <td>{{incremented @index}}</td>
+                                <td class="date-cell">{{formatDate this.createdAt}}</td>
+                                 <td>{{this.updatedBy}}</td>
+                                <td>{{this.room}}</td>
+                                <td>{{this.rating}}  <i class="bi bi-star-fill" style="color: #ffc107;"></i> </td>
+                                <td>{{this.feedback}}</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+</table>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </section>
+
+</main><!-- End #main -->

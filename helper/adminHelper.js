@@ -8,27 +8,48 @@ module.exports = {
 
 
 
-  getFilteredRooms: async (filters) => {
+  getFilteredRooms: async (filters, priceRange, season) => {
+    console.log("priceRange:", priceRange, ":priceRange");
+
     try {
-      // ✅ Convert stored price values to numbers
-      return await db.get()
-        .collection(collections.ROOM_COLLECTION)
-        .aggregate([
-          {
-            $addFields: {
-              Price: { $toInt: "$Price" } // Convert string Price to integer
-            }
-          },
-          {
-            $match: filters
-          }
-        ])
-        .toArray();
+        return await db.get()
+            .collection(collections.ROOM_COLLECTION)
+            .aggregate([
+                {
+                    $addFields: {
+                        Price: {
+                            $toInt: {
+                                $ifNull: [`$${season}Price`, "$normalPrice"]
+                            }
+                        },
+                        AdvPrice: {
+                            $toInt: {
+                                $ifNull: [`$${season}AdvPrice`, "$normalAdvPrice"]
+                            }
+                        }
+                    }
+                },
+                {
+                    $match: filters
+                },
+                ...(priceRange
+                    ? [
+                        {
+                            $match: {
+                                Price: { $gte: priceRange.min, $lte: priceRange.max }
+                            }
+                        }
+                    ]
+                    : []
+                )
+            ])
+            .toArray();
     } catch (error) {
-      console.error("Error fetching filtered rooms:", error);
-      return [];
+        console.error("Error fetching filtered rooms:", error);
+        return [];
     }
-  },
+},
+
 
 
 
@@ -390,56 +411,139 @@ module.exports = {
     });
   },
 
-
-  getRoomsByCategory: (categoryId) => {
+  updateRoomPricingByCategory: (categoryId, pricingData) => {
     return new Promise(async (resolve, reject) => {
-      try {
-        let rooms = await db.get().collection(collections.ROOM_COLLECTION)
-          .aggregate([
-            {
-              $match: { category: new ObjectId(categoryId) } // Filter rooms by category ID
-            },
-            {
-              $lookup: {
-                from: collections.CATEGORY_COLLECTION,
-                localField: "category",
-                foreignField: "_id",
-                as: "categoryDetails"
-              }
-            },
-            {
-              $unwind: {
-                path: "$categoryDetails",
-                preserveNullAndEmptyArrays: true
-              }
-            },
-            {
-              $project: {
-                _id: 1,
-                roomname: 1,
-                Price: 1,
-                AdvPrice: 1,
-                in: 1,
-                out: 1,
-                ren: 1,
-                desc: 1,
-                fesilities: 1,
-                createdAt: 1,
-                seat: 1,
-                images: 1,
-                categoryId: "$category",
-                categoryName: { $ifNull: ["$categoryDetails.name", "Unknown"] }
-              }
-            }
-          ])
-          .toArray();
+        try {
+            let result = await db.get().collection(collections.ROOM_COLLECTION)
+                .updateMany(
+                    { category: new ObjectId(categoryId) }, // Match all rooms in the category
+                    { 
+                        $set: { 
+                            Price: pricingData.normalPrice,
+                            AdvPrice: pricingData.normalAdvPrice,
+                            normalPrice: pricingData.normalPrice,
+                            normalAdvPrice: pricingData.normalAdvPrice,
+                            summerPrice: pricingData.summerPrice,
+                            summerAdvPrice: pricingData.summerAdvPrice,
+                            winterPrice: pricingData.winterPrice,
+                            winterAdvPrice: pricingData.winterAdvPrice,
+                            offseasonPrice: pricingData.offseasonPrice,
+                            offseasonAdvPrice: pricingData.offseasonAdvPrice
+                        } 
+                    }
+                );
 
-        resolve(rooms);
-      } catch (error) {
-        reject(error);
-      }
+            resolve(result.modifiedCount); // Return the number of rooms updated
+        } catch (error) {
+            reject(error);
+        }
     });
-  },
+},
+
+roomsPerCategory: () => {
+  return new Promise(async (resolve, reject) => {
+      try {
+          let rooms = await db.get().collection(collections.ROOM_COLLECTION)
+              .aggregate([
+                  {
+                      $lookup: {
+                          from: collections.CATEGORY_COLLECTION,
+                          localField: "category",
+                          foreignField: "_id",
+                          as: "categoryDetails"
+                      }
+                  },
+                  { $unwind: { path: "$categoryDetails", preserveNullAndEmptyArrays: true } },
+                  {
+                      $sort: { createdAt: -1 } // Optional: Sort by latest rooms first
+                  },
+                  {
+                      $group: {
+                          _id: "$category",
+                          room: { $first: "$$ROOT" }, // Pick the first room for each category
+                          categoryName: { $first: "$categoryDetails.name" }
+                      }
+                  },
+                  {
+                      $project: {
+                          _id: "$room._id",
+                          roomname: "$room.roomname",
+                          roomnumber: "$room.roomnumber",
+                          Price: "$room.Price",
+                          AdvPrice: "$room.AdvPrice",
+                          in: "$room.in",
+                          out: "$room.out",
+                          ren: "$room.ren",
+                          desc: "$room.desc",
+                          fesilities: "$room.fesilities",
+                          createdAt: "$room.createdAt",
+                          seat: "$room.seat",
+                          images: "$room.images",
+                          categoryId: "$_id",
+                          categoryName: { $ifNull: ["$categoryName", "Unknown"] }
+                      }
+                  }
+              ])
+              .toArray();
+
+          resolve(rooms);
+      } catch (error) {
+          reject(error);
+      }
+  });
+},
+
+
+getRoomsByCategory: (categoryId, currentSeason) => {
+  return new Promise(async (resolve, reject) => {
+      try {
+          let rooms = await db.get().collection(collections.ROOM_COLLECTION)
+              .aggregate([
+                  {
+                      $match: { category: new ObjectId(categoryId) } // Filter rooms by category ID
+                  },
+                  {
+                      $lookup: {
+                          from: collections.CATEGORY_COLLECTION,
+                          localField: "category",
+                          foreignField: "_id",
+                          as: "categoryDetails"
+                      }
+                  },
+                  {
+                      $unwind: {
+                          path: "$categoryDetails",
+                          preserveNullAndEmptyArrays: true
+                      }
+                  },
+                  {
+                      $project: {
+                          _id: 1,
+                          roomname: 1,
+                          Price: { $ifNull: [`$${currentSeason}Price`, "$normalPrice"] }, // Use season price or fallback to normalPrice
+                          AdvPrice: { $ifNull: [`$${currentSeason}AdvPrice`, "$normalAdvPrice"] }, // Use season advPrice or fallback
+                          in: 1,
+                          out: 1,
+                          ren: 1,
+                          desc: 1,
+                          fesilities: 1,
+                          createdAt: 1,
+                          seat: 1,
+                          images: 1,
+                          categoryId: "$category",
+                          categoryName: { $ifNull: ["$categoryDetails.name", "Unknown"] }
+                      }
+                  }
+              ])
+              .toArray();
+
+          resolve(rooms);
+      } catch (error) {
+          reject(error);
+      }
+  });
+},
+
 
   ///////ADD room DETAILS/////////////////////                                            
   getroomDetails: (roomId) => {
@@ -516,30 +620,18 @@ module.exports = {
     });
   },
 
-
-
-  addProduct: (product, callback) => {
-    console.log(product);
-    product.Price = parseInt(product.Price);
-    db.get()
-      .collection(collections.PRODUCTS_COLLECTION)
-      .insertOne(product)
-      .then((data) => {
-        console.log(data);
-        callback(data.ops[0]._id);
-      });
-  },
-
-  getAllProducts: () => {
+  getAllROOOMs: () => {
     return new Promise(async (resolve, reject) => {
-      let products = await db
+      let rooms = await db
         .get()
-        .collection(collections.PRODUCTS_COLLECTION)
+        .collection(collections.ROOM_COLLECTION)
         .find()
         .toArray();
-      resolve(products);
+      resolve(rooms);
     });
   },
+
+
 
   doSignup: (adminData) => {
     return new Promise(async (resolve, reject) => {
@@ -582,17 +674,17 @@ module.exports = {
       }
     });
   },
-
-  getProductDetails: (productId) => {
+  getDiscountDetails:(categoryId) => {
     return new Promise((resolve, reject) => {
       db.get()
-        .collection(collections.PRODUCTS_COLLECTION)
-        .findOne({ _id: objectId(productId) })
+        .collection(collections.DISCOUNTS_COLLECTION)
+        .findOne({ _id: objectId(categoryId) })
         .then((response) => {
           resolve(response);
         });
     });
   },
+ 
 
 
   getCategoryDetails: (categoryId) => {
@@ -606,50 +698,9 @@ module.exports = {
     });
   },
 
-  deleteProduct: (productId) => {
-    return new Promise((resolve, reject) => {
-      db.get()
-        .collection(collections.PRODUCTS_COLLECTION)
-        .removeOne({ _id: objectId(productId) })
-        .then((response) => {
-          console.log(response);
-          resolve(response);
-        });
-    });
-  },
+ 
 
-  updateProduct: (productId, productDetails) => {
-    return new Promise((resolve, reject) => {
-      db.get()
-        .collection(collections.PRODUCTS_COLLECTION)
-        .updateOne(
-          { _id: objectId(productId) },
-          {
-            $set: {
-              Name: productDetails.Name,
-              Category: productDetails.Category,
-              Price: productDetails.Price,
-              Description: productDetails.Description,
-            },
-          }
-        )
-        .then((response) => {
-          resolve();
-        });
-    });
-  },
-
-  deleteAllProducts: () => {
-    return new Promise((resolve, reject) => {
-      db.get()
-        .collection(collections.PRODUCTS_COLLECTION)
-        .remove({})
-        .then(() => {
-          resolve();
-        });
-    });
-  },
-
+  
   getAllUsers: () => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -702,7 +753,28 @@ module.exports = {
       }
     });
   },
-
+  updateDiscounts:(categoryId, Details) => {
+    return new Promise((resolve, reject) => {
+      db.get()
+        .collection(collections.CATEGORY_COLLECTION)
+        .updateOne(
+          { _id: objectId(categoryId) },
+          {
+            $set: {
+                name:Details.name,
+                subname:Details.subname,
+                code:Details.code,
+                percentage:parseFloat(Details.percentage),
+                desc:Details.desc,
+                offerVisibility:Details.offerVisibility
+            }
+          }
+        )
+        .then((response) => {
+          resolve();
+        });
+    });
+  },
 
 
   updateCategory: (categoryId, categoryDetails) => {
@@ -754,24 +826,24 @@ module.exports = {
         }
 
         // Selected Date Filtering
-        if (filters.selecteddate) {
-          query["deliveryDetails.selecteddate"] = filters.selecteddate;
-        }
+        // if (filters.selecteddate) {
+        //   query["deliveryDetails.selecteddate"] = filters.selecteddate;
+        // }
 
         // Total Amount Filtering
-        if (filters.totalAmount) {
-          query.totalAmount = parseFloat(filters.totalAmount); // Ensure it's a number
-        }
+        // if (filters.totalAmount) {
+        //   query.totalAmount = parseFloat(filters.totalAmount); // Ensure it's a number
+        // }
 
         // Placed By (User ID) Filtering
-        if (filters.userId) {
-          query["user._id"] = filters.userId;
-        }
+        // if (filters.userId) {
+        //   query["user._id"] = filters.userId;
+        // }
 
         // Room Number Filtering
-        if (filters.roomNumber) {
-          query["room.roomnumber"] = filters.roomNumber;
-        }
+        // if (filters.roomNumber) {
+        //   query["room.roomnumber"] = filters.roomNumber;
+        // }
 
         let orders = await db.get()
           .collection(collections.ORDER_COLLECTION)
@@ -884,32 +956,6 @@ module.exports = {
         });
     });
   },
-
-  searchProduct: (details) => {
-    console.log(details);
-    return new Promise(async (resolve, reject) => {
-      db.get()
-        .collection(collections.PRODUCTS_COLLECTION)
-        .createIndex({ Name: "text" }).then(async () => {
-          let result = await db
-            .get()
-            .collection(collections.PRODUCTS_COLLECTION)
-            .find({
-              $text: {
-                $search: details.search,
-              },
-            })
-            .toArray();
-          resolve(result);
-        })
-
-    });
-  },
-
-
-
-
-
   getAllassigns: () => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -1022,6 +1068,10 @@ module.exports = {
   addDiscount: (discount, callback) => {
     console.log(discount);
     discount.createdAt = new Date();
+    if (discount.room) {
+      discount.room = discount.room;
+    }
+
 
     db.get()
       .collection(collections.DISCOUNTS_COLLECTION)
@@ -1042,4 +1092,19 @@ module.exports = {
       resolve(discounts);
     });
   },
+  getAllFeedbacks:()=>{
+    return new Promise(async (resolve, reject) => {
+      let result = await db
+        .get()
+        .collection(collections.FEEDBACK_COLLECTION)
+        .find()
+        .sort({ 
+          createdAt: -1 // Sorting in descending order
+        })
+        .toArray();
+      resolve(result);
+    });
+
+  },
+
 }

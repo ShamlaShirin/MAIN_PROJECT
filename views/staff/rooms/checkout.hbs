@@ -1,0 +1,119 @@
+<main id="main" class="main">
+
+    <div class="pagetitle">
+        <h1>checkOut Rooms</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/staff">Dashboard</a></li>
+                <li class="breadcrumb-item">Rooms</li>
+                <li class="breadcrumb-item active">CheckOut Rooms</li>
+            </ol>
+        </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title">CheckOut Rooms</h5>
+                            {{!-- <a href="/admin/rooms/add-room" class="btn btn-dark">+ Add New Room</a> --}}
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table datatable">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Booking CheckOut Date</th>
+                                        <th>User Details</th>
+                                        <th>Room Number</th>
+                                        <th>Manage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{#each assignedrooms}}
+                                    <tr>
+                                        <td>{{incremented @index}}</td>
+                                        <td>{{ formatDateY orderDetails.deliveryDetails.checkout}}</td>
+                                        <td>{{orderDetails.deliveryDetails.Fname}} {{orderDetails.deliveryDetails.Lname}} <br>
+                                            {{orderDetails.deliveryDetails.Phone}} <br>
+                                            {{orderDetails.deliveryDetails.Email}} <br>
+
+                                        </td>
+                                        <td>{{orderDetails.room.roomnumber}}</td>
+
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                              
+                <input type="datetime-local" id="schedule-{{this.order}}" class="datetimepicker" />
+                <select id="status-{{this.order}}">
+                    <option value="CheckIn">CheckOut</option>
+                </select>
+                <button class="btn btn-success mt-2" onclick="setCheckin('{{this.order}}')">Set</button>
+            
+                                          
+                                                   
+                                         
+                                            </div>
+                                        </td>
+
+                                    </tr>
+                                    {{/each}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+    </section>
+
+</main><!-- End #main -->
+
+<script>
+    // Get current date and time
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = ((now.getHours() + 11) % 12 + 1).toString().padStart(2, '0'); // Convert to 12-hour format
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+
+    // Set default value to current date and time in 12-hour format with AM/PM
+    const defaultDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+</script>
+
+
+
+
+<script>
+async function setCheckin(orderId) {
+    console.log(orderId,`schedule-${orderId}`)
+    let scheduledTime = document.getElementById(`schedule-${orderId}`).value;
+    let status = document.getElementById(`status-${orderId}`).value;
+
+    
+
+    let response = await fetch("/staff/set-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, scheduledTime, status })
+    });
+
+    let result = await response.json();
+    if (result.success) {
+        alert("updated!");
+        window.location.reload();
+    } else {
+        alert("Failed to update meeting.");
+    }
+}
+</script>

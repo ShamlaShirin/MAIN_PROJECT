@@ -1,0 +1,72 @@
+<main id="main" class="main">
+
+    <div class="pagetitle">
+        <h1>Assigned Rooms</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/staff">Dashboard</a></li>
+                <li class="breadcrumb-item">Rooms</li>
+                <li class="breadcrumb-item active">All Assigned Rooms</li>
+            </ol>
+        </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title">All Assigned Rooms</h5>
+                            {{!-- <a href="/admin/rooms/add-room" class="btn btn-dark">+ Add New Room</a> --}}
+                        </div>
+
+                        <div class="row">
+      
+        <div class="col-12 mb-3">
+            <div class="card single-product-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="card-side-img">
+                            <a class="product-thumbnail d-block" href="#!"><img
+                                    src="/images/room-images/{{order.room._id}}-2.png" alt="" width="200px">
+                                </a>
+                        </div>
+                        <div class="card-content px-4 py-2">
+                            
+                            User Details
+                            <hr>
+                           <p>Name:{{order.deliveryDetails.Fname}} {{deliveryDetails.Lname}}</p> 
+                            Phone:{{order.deliveryDetails.Phone}}<br>
+                            Address:{{order.deliveryDetails.Address}}<br>
+                            District:{{order.deliveryDetails.District}}<br>
+                            Pincode:{{order.deliveryDetails.Pincode}}<br>
+
+                            <a class="text-dark" href="#!">
+                                <h3>{{order.room.categoryName}}</h3>
+                                <p class="mt-3 mb-0">Room Number : {{order.room.roomnumber}}</p>
+                                <p class="mt-0 mb-0">Booked Date : {{ formatDateY order.deliveryDetails.checkin}}</p>
+                                 <p class="mt-0 mb-0">CheckOut Date : {{formatDateY order.deliveryDetails.checkout}}</p>
+                                <p class="mt-0 mb-3">Amount you paid : {{order.totalAmount}}/-</p>
+                                Booking Status : <span class="badge bg-primary p-2 mb-3"> {{order.status}}</span> <br>
+
+                            </a>
+                        
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+ 
+    </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+    </section>
+
+</main><!-- End #main -->

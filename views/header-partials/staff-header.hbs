@@ -82,11 +82,18 @@
 
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="/staff/rooms/all-rooms">
+            <a class="nav-link collapsed" href="/staff/rooms/checkin/{{staff._id}}">
                 <i class="bi bi-house"></i>
-                <span>Available Rooms</span>
+                <span>Checkin Rooms</span>
             </a>
         </li><!-- End Dashboard Nav -->
+
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="/staff/rooms/checkout/{{staff._id}}">
+                <i class="bi bi-house"></i>
+                <span>CheckOut Rooms</span>
+            </a>
+        </li>
 
 
         <li class="nav-item">
@@ -94,14 +101,14 @@
                 <i class="bi bi-house"></i>
                 <span>Assigned Rooms</span>
             </a>
-        </li><!-- End Dashboard Nav -->
+        </li>
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="/staff/rooms/bookings">
+ <li class="nav-item">
+            <a class="nav-link collapsed" href="/staff/feedback/{{staff._id}}">
                 <i class="bi bi-house"></i>
-                <span>Booked Rooms</span>
+                <span>Feedbacks</span>
             </a>
-        </li><!-- End Dashboard Nav -->
+        </li>
 
 
 

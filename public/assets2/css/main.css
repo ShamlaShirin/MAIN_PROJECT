@@ -19,6 +19,135 @@
   --nav-font: 'Raleway', sans-serif;
 }
 
+        /* Chat button styles */
+        #chat-button {
+          position: fixed;
+          bottom: 20px;
+          left: 95%;
+          width: 60px;
+          height: 60px;
+          background-color: #007bff;
+          color: white;
+          border-radius: 50%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 24px;
+          cursor: pointer;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+          z-index: 1000;
+          transition: transform 0.3s ease;
+      }
+
+      #chat-button:hover {
+          transform: scale(1.1);
+      }
+
+      /* Chat container styles */
+      #chat-container {
+          position: fixed;
+          bottom: 90px;
+          right: 20px;
+          width: 320px;
+          height: 400px;
+          background-color: #fff;
+          border-radius: 10px;
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+          display: none;
+          flex-direction: column;
+          overflow: hidden;
+          z-index: 999;
+      }
+
+      /* Chat header styles */
+      #chat-header {
+          background-color: #007bff;
+          color: white;
+          padding: 15px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+      }
+
+      #chat-header span {
+          font-weight: bold;
+      }
+
+      #close-chat {
+          background: none;
+          border: none;
+          color: white;
+          font-size: 16px;
+          cursor: pointer;
+      }
+
+      /* Chat messages styles */
+      #chat-messages {
+          flex: 1;
+          padding: 15px;
+          overflow-y: auto;
+          background-color: #f5f5f5;
+      }
+
+      .message {
+          margin-bottom: 10px;
+          padding: 8px 12px;
+          max-width: 70%;
+          border-radius: 18px;
+          word-wrap: break-word;
+      }
+
+      .user-message {
+          background-color: white;
+          border: 1px solid #e0e0e0;
+          color: #333;
+          margin-left: auto;
+      }
+
+      .bot-message {
+          background-color: #007bff;
+          color: white;
+          margin-right: auto;
+      }
+
+      /* Chat input styles */
+      #chat-input {
+          display: flex;
+          padding: 10px;
+          border-top: 1px solid #e0e0e0;
+      }
+
+      #user-message {
+          flex: 1;
+          padding: 8px 12px;
+          border: 1px solid #e0e0e0;
+          border-radius: 20px;
+          outline: none;
+      }
+
+      #send-message {
+          background-color: #007bff;
+          color: white;
+          border: none;
+          border-radius: 20px;
+          padding: 8px 16px;
+          margin-left: 8px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+      }
+
+      #send-message:hover {
+          background-color: #0056b3;
+      }
+
+      /* Mobile responsive */
+      @media (max-width: 480px) {
+          #chat-container {
+              width: 85%;
+              right: 10px;
+          }
+      }
+
 /* Global Colors - The following color variables are used throughout the website. Updating them here will change the color scheme of the entire website */
 :root {
   --background-color: #ffffff; /* Background color for the entire website, including individual sections */

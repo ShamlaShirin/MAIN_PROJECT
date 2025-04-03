@@ -49,6 +49,32 @@ app.engine(
         const year = date.getFullYear();
         return `${day}-${month}-${year}`; // Return the formatted date
       },
+      formatDateY: function (date) {
+        if (!date) return ''; // Handle null or undefined dates
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0'); // Ensure two digits
+        const day = String(d.getDate()).padStart(2, '0'); // Ensure two digits
+        return `${year}-${month}-${day}`;
+      },
+      formatFacilities:  function (text) {
+        if (!text) return ""; // Handle empty input
+
+        const listItems = text
+            .split("*") // Split based on '*'
+            .filter(item => item.trim() !== "") // Remove empty entries
+            .map(item => `<li>${item.trim()}</li>`) // Wrap in <li>
+            .join(""); // Join all items
+    
+        return `<ul class="facilities-list">${listItems}</ul>`; // Return as SafeString
+    },
+    halfAmount:function (fullAmount, paymentMethod) {
+      if (paymentMethod === "COD") {
+          return (fullAmount * 0.5).toFixed(2); // Ensures proper formatting
+      } else {
+          return fullAmount;
+      }
+  }
     },
   })
 );

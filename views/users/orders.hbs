@@ -30,22 +30,29 @@
                             <a class="text-dark" href="#!">
                                 <h3>{{room.categoryName}}</h3>
                                 <p class="mt-3 mb-0">Room Number : {{room.roomnumber}}</p>
-                                <p class="mt-0 mb-0">Booked Date : {{deliveryDetails.selecteddate}}</p>
+                                <p class="mt-0 mb-0">Booked Date : {{ formatDate deliveryDetails.checkin}}</p>
+                                 <p class="mt-0 mb-0">CheckOut Date : {{formatDate deliveryDetails.checkout}}</p>
                                 <p class="mt-0 mb-3">Amount you paid : {{this.totalAmount}}/-</p>
 
                             </a>
 
                             {{!-- <a class="btn btn-dark btn-sm" href="/view-ordered-rooms/{{this._id}}">
                                 View Details</a> --}}
-                            <a href="/cancel-order/{{this._id}}"
+                            {{!-- <a href="/cancel-order/{{this._id}}"
                                 onclick="return confirm('Are You Sure to cancel {{this.roomname}} ?')"
-                                class="btn btn-danger btn-sm">
+                                >
                                 Cancel Booking
-                            </a>
+                            </a> --}}
+                            <button class="btn btn-danger btn-sm" onclick="openCancelModal('{{this._id}}')">Cancel Booking</button>
 
                             <a href="/updateorder/{{this._id}}" class="btn btn-dark btn-sm">
                                 Modify Booking
                             </a>
+                            {{#if (eq this.status "Confirmed")}}
+                            <a href="/feedback/{{this._id}}" class="btn btn-warning btn-sm">
+                             Feedback and Ratings
+                            </a>
+                            {{/if}}
                         </div>
                     </div>
                 </div>
@@ -67,6 +74,27 @@
     {{/if}}
 </div>
 
+<!-- Cancel Booking Modal -->
+<div id="cancelModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <h2>Cancel Booking</h2>
+    <p>Are you sure you want to cancel this booking?</p>
+    <ul>
+      <li>✔ You can cancel only if the check-in date is at least 24 hours away.</li>
+      <li>✔ Refundable bookings are eligible for cancellation.</li>
+      <li>✔ Bookings that are checked in or completed cannot be canceled.</li>
+    </ul>
+    
+    <label>
+      <input type="checkbox" id="agreeCheckbox"> I agree to the cancellation policy.
+    </label>
+    
+    <button id="cancelBookingBtn" disabled>Cancel Booking</button>
+    <button onclick="closeCancelModal()">Close</button>
+  </div>
+</div>
+
+
 
 <script>
     function canelorder(id) {
@@ -86,4 +114,40 @@
             }
         });
     }
+    let selectedBookingId = null;
+
+// Open the modal and store booking ID
+function openCancelModal(bookingId) {
+    selectedBookingId = bookingId;
+    document.getElementById("cancelModal").style.display = "block";
+}
+
+// Close the modal
+function closeCancelModal() {
+    document.getElementById("cancelModal").style.display = "none";
+}
+
+// Enable cancel button only if the checkbox is checked
+document.getElementById("agreeCheckbox").addEventListener("change", function() {
+    document.getElementById("cancelBookingBtn").disabled = !this.checked;
+});
+
+// Handle booking cancellation
+document.getElementById("cancelBookingBtn").addEventListener("click", async function() {
+    if (!selectedBookingId) {
+        alert("Invalid booking.");
+        return;
+    }
+
+    const response = await fetch(`/cancel-order/${selectedBookingId}`, { method: "GET" });
+
+    if (response.ok) {
+        alert("Booking canceled successfully!");
+        location.reload(); // Refresh the page after cancellation
+    } else {
+        const errorMessage = await response.text();
+        alert(errorMessage);
+    }
+});
+
 </script>
