@@ -49,10 +49,10 @@
                                             <div class="d-flex gap-2">
                                               
                 <input type="datetime-local" id="schedule-{{this.order}}" class="datetimepicker" />
-                <select id="status-{{this.order}}">
-                    <option value="CheckIn">CheckOut</option>
+                <select id="status-{{this.order}}" hidden>
+                    <option value="CheckIn" checked>CheckOut</option>
                 </select>
-                <button class="btn btn-success mt-2" onclick="setCheckin('{{this.order}}')">Set</button>
+                <button class="btn btn-success mt-2" onclick="setCheckin('{{this.order}}')">CheckOut</button>
             
                                           
                                                    

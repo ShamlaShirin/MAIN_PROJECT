@@ -847,10 +847,58 @@ getRoomsByCategory: (categoryId, currentSeason) => {
 
         let orders = await db.get()
           .collection(collections.ORDER_COLLECTION)
-          .find(query)
+          .aggregate([
+            { $match: query },
+            {
+              $lookup: {
+                from: collections.ASSIGN_STAFF,
+                localField: "_id",
+                foreignField: "order",
+                as: "staffData"
+              }
+            },
+            {
+              $addFields: {
+                staffInfo: { $arrayElemAt: ["$staffData", 0] },
+                actualCheckin: {
+                  $cond: {
+                    if: { $gt: [{ $size: "$staffData" }, 0] },
+                    then: { $ifNull: [{ $arrayElemAt: ["$staffData.checkin", 0] }, "$checkin"] },
+                    else: "$checkin"
+                  }
+                },
+                actualCheckout: {
+                  $cond: {
+                    if: { $gt: [{ $size: "$staffData" }, 0] },
+                    then: { $ifNull: [{ $arrayElemAt: ["$staffData.checkout", 0] }, "$checkout"] },
+                    else: "$checkout"
+                  }
+                }
+              }
+            },
+            {
+              $project: {
+                _id: 1,
+                order: 1,
+                createdAt: 1,
+                checkinStatus: "$staffInfo.checkinStatus",
+                actualCheckin: 1,
+                checkoutStatus: "$staffInfo.checkoutStatus",
+                actualCheckout: 1,
+                totalAmount: 1,
+                user: 1,
+                deliveryDetails:1,
+                room: 1,
+                
+paymentMethod:1,
+              }
+            }
+          ])
           .toArray();
+          console.log(JSON.stringify(orders))
 
         resolve(orders);
+
       } catch (error) {
         reject(error);
       }

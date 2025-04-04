@@ -31,8 +31,9 @@
                                         <th>Room Details</th>
                                         <th>User Details</th>
                                         <th>Payment</th>
-                                        <th>Addons</th>
+                                        {{!-- <th>Addons</th> --}}
                                         <th>Booked Date</th>
+                                        <th>Actual Date</th>
                                         <th>Status</th>
 
                                         <th>Manage</th>
@@ -45,7 +46,7 @@
 
                                         <!-- Room Details -->
                                         <td>
-                                            <p class="mb-0"><b>Room Name: </b>{{room.roomname}}</p>
+                                            <p class="mb-0"><b>Room Name: </b>{{room.name}}</p>
                                             <p class="mb-0"><b>Room Number: </b>{{room.roomnumber}}</p>
                                             <p class="mb-0"><b>Price: </b>{{room.Price}}/-</p>
                                         </td>
@@ -56,23 +57,26 @@
                                                 {{user.Lname}}</p>
                                             <p class="mb-0"><b>Email: </b>{{user.Email}}</p>
                                             <p class="mb-0"><b>Phone: </b>{{user.Phone}}</p>
-                                            <p class="mb-0"><b>Address: </b>{{user.Address}},
-                                                {{user.Pincode}}</p>
+                                            {{!-- <p class="mb-0"><b>Address: </b>{{user.Address}},
+                                                {{user.Pincode}}</p> --}}
                                         </td>
 
                                         <!-- Assign Date -->
-                                        <td>{{this.fullAmount}}/- ({{this.paymentMethod}})</td>
-                                        <td>
+                                        <td>{{this.totalAmount}}/- ({{this.paymentMethod}})</td>
+                                        {{!-- <td>
                                             <p class="mb-0"><b>Bed Sheet Type : </b>{{deliveryDetails.bedsheet}}</p>
                                             <p class="mb-0"><b>Beds : </b>{{deliveryDetails.beds}}</p>
                                             <p class="mb-0"><b>Note : </b>{{deliveryDetails.Note}}</p>
 
+                                        </td> --}}
+
+
+
+                                        <td><b>In:</b>{{formatDate deliveryDetails.checkin}} <br>
+                                        <b>Out:</b> {{formatDate deliveryDetails.checkout}}
                                         </td>
-
-
-
-                                        <td>In:{{formatDate deliveryDetails.checkin}} <br>
-                                         Out:{{formatDate deliveryDetails.checkout}}
+                                         <td><b>In:</b>{{formatDate deliveryDetails.checkin}} <br>
+                                        <b>Out:</b> {{formatDate deliveryDetails.checkout}}
                                         </td>
 
 
@@ -99,6 +103,7 @@
                                                     <li><a class="dropdown-item"
                                                             href="/admin/change-status/?status=Declined&orderId={{this._id}}&phone={{user.Phone}}">Declined</a>
                                                     </li>
+                                                    
                                                     {{!-- <li><a class="dropdown-item"
                                                             href="/admin/change-status/?status=delivering&orderId={{this._id}}">delivering</a>
                                                     </li>
@@ -110,7 +115,7 @@
                                         </td>
                                         <td class="d-flex gap-2"><a href="/staff/cancel-booking/{{this._id}}"
                                                 onclick="return confirm('Are You Sure to Vacate This Booking ?')"
-                                                class="btn btn-danger">Vacate</a> 
+                                                class="btn btn-danger"><i class="bi bi-box-arrow-left"></i></a> 
                                             <a href="/staff/cancel-booking/{{this._id}}"
                                                 onclick="return confirm('Are You Sure to Cancel This Booking ?')"
                                                 class="btn btn-danger"><i class="bi bi-trash"></i></a>

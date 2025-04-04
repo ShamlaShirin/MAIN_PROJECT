@@ -43,11 +43,20 @@
                                 >
                                 Cancel Booking
                             </a> --}}
+                             {{#if (eq this.status "Confirmed")}}
                             <button class="btn btn-danger btn-sm" onclick="openCancelModal('{{this._id}}')">Cancel Booking</button>
 
                             <a href="/updateorder/{{this._id}}" class="btn btn-dark btn-sm">
                                 Modify Booking
                             </a>
+                             {{/if}}
+                              {{#if (eq this.status "placed")}}
+                            <button class="btn btn-danger btn-sm" onclick="openCancelModal('{{this._id}}')">Cancel Booking</button>
+
+                            <a href="/updateorder/{{this._id}}" class="btn btn-dark btn-sm">
+                                Modify Booking
+                            </a>
+                             {{/if}}
                             {{#if (eq this.status "Confirmed")}}
                             <a href="/feedback/{{this._id}}" class="btn btn-warning btn-sm">
                              Feedback and Ratings

@@ -370,6 +370,7 @@ console.log("dosi------------")
 
 
   placeOrder: (order, room, total, user) => {
+    console.log("placccccccccccccccccccccccccccccccccccccccc",order)
     return new Promise(async (resolve, reject) => {
       try {
         console.log(order, room, total);
@@ -629,7 +630,10 @@ console.log("dosi------------")
         // Delete the order after updating the seat count
         await db.get()
           .collection(collections.ORDER_COLLECTION)
-          .deleteOne({ _id: objectId(orderId) });
+          .updateOne({ _id: objectId(orderId) }, { $set: { 
+            status
+            : "Declined" }});
+
 
         resolve();
       } catch (error) {
